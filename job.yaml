@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: line-counter
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: line-counter
+          image: git-python-lab:local
+          imagePullPolicy: Never
+          args: ["sample.txt", "--debug"]
