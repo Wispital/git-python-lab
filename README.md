@@ -33,3 +33,21 @@ kubectl --context docker-desktop logs job/line-counter
 ```powershell
 kubectl --context docker-desktop delete -f job.yaml
 ```
+
+## Minikube и Helm
+
+Запустите Docker Desktop в режиме Linux-контейнеров. Из корня проекта
+выполните команды с Minikube и Helm, доступными в PowerShell:
+
+```powershell
+minikube start --driver=docker
+docker build -t git-python-lab:local .
+minikube image load git-python-lab:local
+helm lint chart
+helm install line-counter ./chart --kube-context minikube
+kubectl --context minikube wait --for=condition=complete job/line-counter --timeout=90s
+kubectl --context minikube logs job/line-counter
+```
+
+Откройте веб-интерфейс командой `minikube dashboard` в отдельном окне.
+В Dashboard выберите namespace `default` и найдите Job `line-counter`.

@@ -1,0 +1,4 @@
+image: git-python-lab:local
+args:
+  - sample.txt
+  - --debug

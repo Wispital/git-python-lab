@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: line-counter
+          image: {{ .Values.image | quote }}
+          imagePullPolicy: Never
+          args:
+            {{- toYaml .Values.args | nindent 12 }}

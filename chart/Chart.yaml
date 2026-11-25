@@ -1,0 +1,5 @@
+apiVersion: v2
+name: line-counter
+description: Count non-empty lines as a Kubernetes Job
+type: application
+version: 0.1.0
