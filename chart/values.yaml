@@ -2,3 +2,7 @@ image: git-python-lab:local
 args:
   - sample.txt
   - --debug
+
+database:
+  enabled: false
+  secretName: postgres-login

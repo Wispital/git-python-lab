@@ -7,6 +7,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Count non-empty lines in a file.")
     parser.add_argument("path", type=Path)
     parser.add_argument("--debug", action="store_true")
+    parser.add_argument('--save-to-db', action='store_true')
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -24,6 +25,20 @@ def main() -> int:
         return 1
 
     logger.info("Non-empty lines: %d", count)
+    if args.save_to_db:
+        import psycopg
+
+        try:
+            with psycopg.connect(connect_timeout=5) as connection:
+                connection.execute(
+                    "INSERT INTO line_counts (file_name, non_empty_lines) VALUES (%s, %s)",
+                    (args.path.name, count),
+                )
+        except psycopg.Error as error:
+            logger.error("Cannot save result to PostgreSQL: %s", error)
+            return 1
+
+        logger.info("Result saved to PostgreSQL")
     return 0
 
 

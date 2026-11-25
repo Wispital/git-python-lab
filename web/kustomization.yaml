@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - api.yaml
+  - frontend.yaml
+  - adminer.yaml
+configMapGenerator:
+  - name: line-counter-web-content
+    files:
+      - index.html
+  - name: line-counter-nginx-config
+    files:
+      - default.conf

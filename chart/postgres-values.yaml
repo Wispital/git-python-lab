@@ -1,0 +1,7 @@
+image: git-python-lab:db
+database:
+  enabled: true
+args:
+  - sample.txt
+  - --debug
+  - --save-to-db

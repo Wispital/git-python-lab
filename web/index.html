@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Результаты подсчёта строк</title>
+<style>
+  body { font: 16px system-ui, sans-serif; margin: 3rem auto; max-width: 44rem; padding: 0 1rem; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border-bottom: 1px solid #ccc; padding: .65rem; text-align: left; }
+</style>
+<h1>Результаты подсчёта строк</h1>
+<p id="status" role="status">Загрузка…</p>
+<table hidden>
+  <thead><tr><th>ID</th><th>Файл</th><th>Непустые строки</th></tr></thead>
+  <tbody></tbody>
+</table>
+<script>
+  async function showResults() {
+    const status = document.querySelector('#status');
+    const table = document.querySelector('table');
+    try {
+      const response = await fetch('/api/line-counts');
+      if (!response.ok) throw new Error('API returned ' + response.status);
+      const results = await response.json();
+      for (const item of results) {
+        const row = table.tBodies[0].insertRow();
+        for (const value of [item.id, item.file_name, item.non_empty_lines]) {
+          row.insertCell().textContent = value;
+        }
+      }
+      status.textContent = results.length ? '' : 'В базе пока нет записей.';
+      table.hidden = !results.length;
+    } catch {
+      status.textContent = 'Не удалось получить данные. Обновите страницу и попробуйте снова.';
+    }
+  }
+  showResults();
+</script>
+</html>

@@ -13,3 +13,23 @@ spec:
           imagePullPolicy: Never
           args:
             {{- toYaml .Values.args | nindent 12 }}
+          {{- if .Values.database.enabled }}
+          env:
+            - name: PGHOST
+              value: postgres
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secretName }}
+                  key: POSTGRES_DB
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secretName }}
+                  key: POSTGRES_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secretName }}
+                  key: POSTGRES_PASSWORD
+          {{- end }}
