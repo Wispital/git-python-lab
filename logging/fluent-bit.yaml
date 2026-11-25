@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluent-bit
+spec:
+  selector:
+    matchLabels:
+      app: fluent-bit
+  template:
+    metadata:
+      labels:
+        app: fluent-bit
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: fluent-bit
+          image: cr.fluentbit.io/fluent/fluent-bit:4.2.3
+          args: ["-c", "/config/fluent-bit.conf"]
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: node-logs
+              mountPath: /var/log
+              readOnly: true
+            - name: docker-logs
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: offsets
+              mountPath: /state
+      volumes:
+        - name: config
+          configMap:
+            name: fluent-bit-config
+        - name: node-logs
+          hostPath:
+            path: /var/log
+            type: Directory
+        - name: docker-logs
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: offsets
+          emptyDir: {}

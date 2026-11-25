@@ -149,3 +149,32 @@ $encoded = kubectl --context minikube -n sql-lab get secret postgres-login -o 'j
    затем обновите фронтенд и найдите её.
 
 Для остановки каждого port-forward нажмите Ctrl+C в соответствующем окне.
+
+## Логи в Elasticsearch и Kibana
+
+Fluent Bit читает stdout и stderr контейнеров из namespace `sql-lab`
+на узле Minikube и отправляет записи в индексы `sql-lab-*`.
+В Elasticsearch данные сохраняются на PVC. В учебном кластере
+аутентификация Elastic отключена, сервисы доступны внутри кластера,
+а Kibana открывается через локальный port-forward.
+
+```powershell
+kubectl --context minikube apply -k logging
+kubectl --context minikube -n logging rollout status statefulset/elasticsearch --timeout=5m
+kubectl --context minikube -n logging rollout status deployment/kibana --timeout=5m
+kubectl --context minikube -n logging rollout status daemonset/fluent-bit --timeout=2m
+kubectl --context minikube -n logging port-forward svc/kibana 5601:5601
+```
+
+Откройте `http://localhost:5601`. В **Discover** создайте Data View
+`sql-lab-*` с полем времени `@timestamp`. Обновите страницу фронтенда,
+чтобы получить свежий HTTP-запрос, затем в Discover выберите **Last 15 minutes**.
+Для поиска запроса используйте KQL `log : "/api/line-counts"`.
+Если файл логов Job ещё сохранился на узле, расширьте диапазон времени и ищите
+`log : "Result saved to PostgreSQL"`.
+
+Если в Discover пусто, проверьте состояние сборщика:
+
+```powershell
+kubectl --context minikube -n logging logs daemonset/fluent-bit --tail=60
+```
